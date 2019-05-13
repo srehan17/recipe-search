@@ -1,26 +1,51 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
+import Form from './components/Form';
+import Results from './components/Results';
 
-function App() {
+const API_KEY ="ea5123e5278af4e8f6db17cf1b8865b4";
+
+class App extends React.Component {
+
+  state = {
+      recipes: []
+
+  }
+  getRecipe = async (e) => {
+    const recipeName = e.target.elements.recipeName.value;
+    e.preventDefault();
+    const api_call =  await fetch(`https://www.food2fork.com/api/search?key=${API_KEY}&q=${recipeName}&count=20`); 
+    
+    const data = await api_call.json();
+   
+    this.setState({ recipes: data.recipes });
+    console.log(this.state.recipes);
+  }
+
+  componentDidMount = () => {
+    const json = localStorage.getItem("recipes");
+    const recipes = JSON.parse(json);
+    this.setState({ recipes }); 
+  }
+
+  componentDidUpdate = () => {
+    const recipes = JSON.stringify(this.state.recipes);
+    localStorage.setItem("recipes", recipes);
+  }
+
+  render () {
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+        <h1 className="App-title">
+        Recipe Search
+        </h1>
       </header>
+      <Form getRecipe={this.getRecipe} />
+      <Results recipes={this.state.recipes} />
     </div>
   );
+}
 }
 
 export default App;
